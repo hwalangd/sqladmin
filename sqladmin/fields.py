@@ -7,6 +7,7 @@ from wtforms import Form, SelectFieldBase, ValidationError, fields, widgets
 
 from sqladmin import widgets as sqladmin_widgets
 from sqladmin.ajax import QueryAjaxModelLoader
+import re
 
 __all__ = [
     "AjaxSelectField",
@@ -116,6 +117,25 @@ class JSONField(fields.TextAreaField):
                 self.data = json.loads(valuelist[0])
             except ValueError:
                 raise ValueError(self.gettext("Invalid JSON"))
+
+
+class ArrayField(fields.TextAreaField):
+    def _value(self) -> str:
+        if self.raw_data:
+            return self.raw_data[0]
+        elif self.data:
+            return self.data
+
+    def process_formdata(self, valuelist: List[str]) -> None:
+        if valuelist:
+            value = valuelist[0]
+
+            if not value:
+                self.data = None
+                return
+
+            data = re.sub("[\{\}\[\]' ]", "", valuelist[0]).split(",")
+            self.data = data
 
 
 class QuerySelectField(fields.SelectFieldBase):

@@ -40,6 +40,7 @@ from sqladmin.exceptions import NoConverterFound
 from sqladmin.fields import (
     AjaxSelectField,
     AjaxSelectMultipleField,
+    ArrayField,
     DateField,
     DateTimeField,
     JSONField,
@@ -404,6 +405,12 @@ class ModelConverter(ModelConverterBase):
         self, model: type, prop: ColumnProperty, kwargs: Dict[str, Any]
     ) -> UnboundField:
         return JSONField(**kwargs)
+
+    @converts("ARRAY", "sqlalchemy.dialects.postgresql.ARRAY")
+    def conv_array(
+        self, model: type, prop: ColumnProperty, kwargs: Dict[str, Any]
+    ) -> UnboundField:
+        return ArrayField(**kwargs)
 
     # @converts("dialects.mysql.types.YEAR", "dialects.mysql.base.YEAR")
     # def conv_MSYear(self, field_args: Dict, **kwargs: Any) -> Field:
